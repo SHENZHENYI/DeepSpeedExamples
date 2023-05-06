@@ -42,6 +42,105 @@ class PromptRawDataset(object):
     def get_prompt_and_rejected(self, sample):
         return
 
+# OpenAssistant dataset
+class OasstDataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank, dataset_name):
+        from .oasst_utils import load_oasst_export
+        #super().__init__(output_path, seed, local_rank, dataset_name)
+        self.output_path = output_path
+        self.seed = seed
+        self.local_rank = local_rank
+        
+        self.dataset_name = dataset_name #"2023-04-12_oasst_ready.trees.jsonl.gz"
+        self.dataset_name_clean = "2023-04-12_oasst_ready"
+
+        self.raw_datasets = load_oasst_export(
+            dataset_name,
+            val_split=0.05,
+            manual_seed=seed,
+            lang='en',
+            mode= "sft",
+        )
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return "\n".join(sample[:-1])
+
+    def get_chosen(self, sample):
+        return sample[-1]
+
+    def get_rejected(self, sample):
+        raise NotImplementedError
+
+    def get_prompt_and_chosen(self, sample):
+        return self.get_prompt(sample) + '\n' + self.get_chosen(sample)
+
+    def get_prompt_and_rejected(self, sample):
+        raise NotImplementedError
+
+# Math dataset
+class GradeMathDataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank, dataset_name):
+        super().__init__(output_path, seed, local_rank, dataset_name)
+        self.dataset_name = "qwedsacf/grade-school-math-instructions"
+        self.dataset_name_clean = "grade-school-math-instructions"
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return sample['INSTRUCTION']
+
+    def get_chosen(self, sample):
+        return sample['RESPONSE']
+
+    def get_rejected(self, sample):
+        raise NotImplementedError
+
+    def get_prompt_and_chosen(self, sample):
+        return self.get_prompt(sample) + '\n' + self.get_chosen(sample)
+
+    def get_prompt_and_rejected(self, sample):
+        raise NotImplementedError
+
+# code dataset
+class CodeAlpacahDataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank, dataset_name):
+        super().__init__(output_path, seed, local_rank, dataset_name)
+        self.dataset_name = "sahil2801/CodeAlpaca-20k"
+        self.dataset_name_clean = "CodeAlpaca-20k"
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return sample['instruction']
+
+    def get_chosen(self, sample):
+        return sample['output']
+
+    def get_rejected(self, sample):
+        raise NotImplementedError
+
+    def get_prompt_and_chosen(self, sample):
+        return self.get_prompt(sample) + '\n' + self.get_chosen(sample)
+
+    def get_prompt_and_rejected(self, sample):
+        raise NotImplementedError
 
 # English dataset
 class DahoasRmstaticDataset(PromptRawDataset):

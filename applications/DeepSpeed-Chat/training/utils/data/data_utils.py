@@ -18,8 +18,16 @@ from . import raw_datasets
 
 
 def get_raw_dataset(dataset_name, output_path, seed, local_rank):
-
-    if "Dahoas/rm-static" in dataset_name:
+    if "qwedsacf/grade-school-math-instructions" in dataset_name:
+        return raw_datasets.GradeMathDataset(output_path, seed,
+                                                  local_rank, dataset_name)
+    elif "sahil2801/CodeAlpaca-20k" in dataset_name:
+        return raw_datasets.CodeAlpacahDataset(output_path, seed,
+                                                  local_rank, dataset_name)
+    elif "2023-04-12_oasst_ready" in dataset_name: # only support local file
+        return raw_datasets.OasstDataset(output_path, seed,
+                                            local_rank, dataset_name)
+    elif "Dahoas/rm-static" in dataset_name:
         return raw_datasets.DahoasRmstaticDataset(output_path, seed,
                                                   local_rank, dataset_name)
     elif "Dahoas/full-hh-rlhf" in dataset_name:
